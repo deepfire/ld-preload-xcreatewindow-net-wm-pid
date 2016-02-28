@@ -1,0 +1,20 @@
+* What
+
+This is intended to make X applications respect =_NET_WM_PID=, through applying a
+post-hook on =XCreateWindow=, =XCreateSimpleWindow= and =XReparentWindow= via =LD_PRELOAD=.
+
+* Using with XMonad
+
+  This closes one more gap in reliable placement of application windows at desired
+  workspaces.
+
+  Basically, the following is what works for me:
+
+  #+BEGIN_SRC 
+  spawnOn name $ "{ export LD_PRELOAD=/path/to/ld-preload-xcreatewindow.so; " ++ cmd ++ "; }"
+  #+END_SRC
+
+* Known issues
+
+  Sometimes, =dlsym()= fails to return the original value of the hooked symbol,
+  for example this is what I see with QuodLibet on NixOS as of early 2016.
