@@ -44,6 +44,7 @@ __e_hack_set_properties(Display *display, Window window)
 
 	snprintf(buf, sizeof(buf), "%i", pid);
 	XChangeProperty(display, window, net_wm_pid, XA_CARDINAL, 32, PropModeReplace, (void *) &pid, 1);
+	fprintf (stderr, "-- trapped window creation: window=%d, pid=%d\n", window, pid);
      }
 }
 
