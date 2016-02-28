@@ -34,7 +34,7 @@ __e_hack_set_properties(Display *display, Window window)
 {
    static Atom net_wm_pid = 0;
 
-   if (!net_wm_pid)    net_wm_pid    = XInternAtom(display, "_NET_WM_PID", False);
+   if (!net_wm_pid)    net_wm_pid    = XInternAtom (display, "_NET_WM_PID", False);
 
      {
 	pid_t pid;
@@ -43,28 +43,41 @@ __e_hack_set_properties(Display *display, Window window)
 	pid = getpid();
 
 	snprintf(buf, sizeof(buf), "%i", pid);
-	XChangeProperty(display, window, net_wm_pid, XA_CARDINAL, 32, PropModeReplace, (void *) &pid, 1);
+	XChangeProperty (display, window, net_wm_pid, XA_CARDINAL, 32, PropModeReplace, (void *) &pid, 1);
 	fprintf (stderr, "-- trapped window creation: window=%d, pid=%d\n", window, pid);
      }
 }
 
-#define get_sym(func_var, lib_handle_var, soname, fname) {		\
+#define _get_sym(func_var, lib_handle_var, soname, fname, dlopen1, dlsym1, dlopen2, dlsym2) { \
    if (!lib_handle_var)							\
-	   lib_handle_var = dlopen(soname, RTLD_GLOBAL | RTLD_LAZY);	\
+	   lib_handle_var = dlopen1;					\
    if (!func_var)							\
-	   func_var = dlsym (RTLD_NEXT, #fname);			\
+	   func_var = dlsym1;						\
    if (!func_var) {							\
-	   fprintf (stderr, "WARNING: dlsym (RTLD_NEXT, '" #fname "') failed: %s, retrying with '" soname "'.\n", dlerror ()); \
-	   func_var = dlsym (lib_handle_var, #fname);			\
+	   fprintf (stderr, "\nWARNING: " #dlopen1 "-" #dlsym1 " failed: %s, trying " #dlopen2 "-" #dlsym2 ".\n", dlerror ()); \
+	   lib_handle_var = dlopen2;					\
+	   if (!lib_handle_var)	{					\
+		   fprintf (stderr, "\nFATAL: " #dlopen2 " failed: %s.\n", dlerror ()); \
+		   exit (1);						\
+	   }								\
+	   func_var = dlsym2;						\
+	   if (func_var)						\
+		   fprintf (stderr, "\nINFO: " #dlopen2 "-" #dlsym2 " combination successful.\n"); \
    }									\
    if (func_var == fname) {						\
-	   fprintf (stderr, "FATAL: dlsym ('" #fname "') somehow points at us.\n"); \
+	   fprintf (stderr, "\nFATAL: dlsym ('" #fname "') somehow points at us.\n"); \
 	   exit (1);							\
    } else if (! func_var) {						\
-	   fprintf (stderr, "FATAL: dlsym ('" soname "', '" #fname "') failed: %s.\n", dlerror ()); \
+	   fprintf (stderr, "\nFATAL: dlsym ('" soname "', '" #fname "') failed: %s.\n", dlerror ()); \
 	   exit (1);							\
    }									\
 }
+#define get_sym(func_var, lib_handle_var, soname, fname)	\
+       _get_sym(func_var, lib_handle_var, soname, fname,	\
+		dlopen (NULL, RTLD_LAZY | RTLD_GLOBAL),		\
+		dlsym (RTLD_NEXT, #fname),			\
+		dlopen (soname, RTLD_LAZY | RTLD_NOLOAD),	\
+		dlsym (lib_handle_var, #fname))
 
 /* XCreateWindow intercept hack */
 Window
@@ -97,7 +110,7 @@ XCreateWindow(
    int i;
 
    /* find the real Xlib and the real X function */
-   get_sym (func, lib_xlib, "libX11.so", XCreateWindow);
+   get_sym (func, lib_xlib, "libX11.so.6", XCreateWindow);
 
    /* multihead screen handling loop */
    for (i = 0; i < ScreenCount(display); i++)
@@ -147,7 +160,7 @@ XCreateSimpleWindow(
    int i;
 
    /* find the real Xlib and the real X function */
-   get_sym (func, lib_xlib, "libX11.so", XCreateSimpleWindow);
+   get_sym (func, lib_xlib, "libX11.so.6", XCreateSimpleWindow);
 
    /* multihead screen handling loop */
    for (i = 0; i < ScreenCount(display); i++)
@@ -190,7 +203,7 @@ XReparentWindow(
    int i;
 
    /* find the real Xlib and the real X function */
-   get_sym (func, lib_xlib, "libX11.so", XReparentWindow);
+   get_sym (func, lib_xlib, "libX11.so.6", XReparentWindow);
 
    /* multihead screen handling loop */
    for (i = 0; i < ScreenCount(display); i++)

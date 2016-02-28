@@ -8,7 +8,7 @@ HOOK_ABS := $(shell realpath $(HOOK))
 hook: $(HOOK)
 
 $(HOOK): $(SRC)
-	gcc $(SRC) -shared -fPIC -o $(HOOK)
+	gcc $(SRC) -shared -lX11 -fPIC -o $(HOOK)
 
 test: $(HOOK)
 	export LD_PRELOAD=$(HOOK_ABS); quodlibet

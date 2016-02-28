@@ -14,7 +14,3 @@ post-hook on =XCreateWindow=, =XCreateSimpleWindow= and =XReparentWindow= via =L
   spawnOn name $ "{ export LD_PRELOAD=/path/to/ld-preload-xcreatewindow.so; " ++ cmd ++ "; }"
   #+END_SRC
 
-* Known issues
-
-  Sometimes, =dlsym()= fails to return the original value of the hooked symbol,
-  for example this is what I see with QuodLibet on NixOS as of early 2016.
