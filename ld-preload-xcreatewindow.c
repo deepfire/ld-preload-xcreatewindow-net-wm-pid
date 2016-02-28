@@ -79,6 +79,7 @@ XCreateWindow(
 
    /* find the real Xlib and the real X function */
    if (!lib_xlib) lib_xlib = dlopen("libX11.so", RTLD_GLOBAL | RTLD_LAZY);
+   if (!func) func = dlsym (RTLD_NEXT, "XCreateWindow");
    if (!func) func = dlsym (lib_xlib, "XCreateWindow");
 
    /* multihead screen handling loop */
@@ -130,6 +131,7 @@ XCreateSimpleWindow(
    
    /* find the real Xlib and the real X function */
    if (!lib_xlib) lib_xlib = dlopen("libX11.so", RTLD_GLOBAL | RTLD_LAZY);
+   if (!func) func = dlsym (RTLD_NEXT, "XCreateSimpleWindow");
    if (!func) func = dlsym (lib_xlib, "XCreateSimpleWindow");
    
    /* multihead screen handling loop */
@@ -174,6 +176,7 @@ XReparentWindow(
    
    /* find the real Xlib and the real X function */
    if (!lib_xlib) lib_xlib = dlopen("libX11.so", RTLD_GLOBAL | RTLD_LAZY);
+   if (!func) func = dlsym (RTLD_NEXT, "XReparentWindow");
    if (!func) func = dlsym (lib_xlib, "XReparentWindow");
    
    /* multihead screen handling loop */
