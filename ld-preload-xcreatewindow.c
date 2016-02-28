@@ -81,6 +81,13 @@ XCreateWindow(
    if (!lib_xlib) lib_xlib = dlopen("libX11.so", RTLD_GLOBAL | RTLD_LAZY);
    if (!func) func = dlsym (RTLD_NEXT, "XCreateWindow");
    if (!func) func = dlsym (lib_xlib, "XCreateWindow");
+   if (func == XCreateWindow) {
+	   fprintf (stderr, "FATAL: dlsym ('XCreateWindow') somehow points at us.\n");
+	   exit (1);
+   } else if (! func) {
+	   fprintf (stderr, "FATAL: dlsym ('XCreateWindow') somehow points at NULL.\n");
+	   exit (1);
+   }
 
    /* multihead screen handling loop */
    for (i = 0; i < ScreenCount(display); i++)
@@ -133,6 +140,13 @@ XCreateSimpleWindow(
    if (!lib_xlib) lib_xlib = dlopen("libX11.so", RTLD_GLOBAL | RTLD_LAZY);
    if (!func) func = dlsym (RTLD_NEXT, "XCreateSimpleWindow");
    if (!func) func = dlsym (lib_xlib, "XCreateSimpleWindow");
+   if (func == XCreateSimpleWindow) {
+	   fprintf (stderr, "FATAL: dlsym ('XCreateSimpleWindow') somehow points at us.\n");
+	   exit (1);
+   } else if (! func) {
+	   fprintf (stderr, "FATAL: dlsym ('XCreateSimpleWindow') somehow points at NULL.\n");
+	   exit (1);
+   }
    
    /* multihead screen handling loop */
    for (i = 0; i < ScreenCount(display); i++)
@@ -178,7 +192,14 @@ XReparentWindow(
    if (!lib_xlib) lib_xlib = dlopen("libX11.so", RTLD_GLOBAL | RTLD_LAZY);
    if (!func) func = dlsym (RTLD_NEXT, "XReparentWindow");
    if (!func) func = dlsym (lib_xlib, "XReparentWindow");
-   
+   if (func == XReparentWindow) {
+	   fprintf (stderr, "FATAL: dlsym ('XReparentWindow') somehow points at us.\n");
+	   exit (1);
+   } else if (! func) {
+	   fprintf (stderr, "FATAL: dlsym ('XReparentWindow') somehow points at NULL.\n");
+	   exit (1);
+   }
+
    /* multihead screen handling loop */
    for (i = 0; i < ScreenCount(display); i++)
      {
