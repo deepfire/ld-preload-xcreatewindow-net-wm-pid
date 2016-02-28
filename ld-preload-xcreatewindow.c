@@ -48,6 +48,24 @@ __e_hack_set_properties(Display *display, Window window)
      }
 }
 
+#define get_sym(func_var, lib_handle_var, soname, fname) {		\
+   if (!lib_handle_var)							\
+	   lib_handle_var = dlopen(soname, RTLD_GLOBAL | RTLD_LAZY);	\
+   if (!func_var)							\
+	   func_var = dlsym (RTLD_NEXT, #fname);			\
+   if (!func_var) {							\
+	   fprintf (stderr, "WARNING: dlsym (RTLD_NEXT, '" #fname "') failed: %s, retrying with '" soname "'.\n", dlerror ()); \
+	   func_var = dlsym (lib_handle_var, #fname);			\
+   }									\
+   if (func_var == fname) {						\
+	   fprintf (stderr, "FATAL: dlsym ('" #fname "') somehow points at us.\n"); \
+	   exit (1);							\
+   } else if (! func_var) {						\
+	   fprintf (stderr, "FATAL: dlsym ('" soname "', '" #fname "') failed: %s.\n", dlerror ()); \
+	   exit (1);							\
+   }									\
+}
+
 /* XCreateWindow intercept hack */
 Window
 XCreateWindow(
@@ -79,16 +97,7 @@ XCreateWindow(
    int i;
 
    /* find the real Xlib and the real X function */
-   if (!lib_xlib) lib_xlib = dlopen("libX11.so", RTLD_GLOBAL | RTLD_LAZY);
-   if (!func) func = dlsym (RTLD_NEXT, "XCreateWindow");
-   if (!func) func = dlsym (lib_xlib, "XCreateWindow");
-   if (func == XCreateWindow) {
-	   fprintf (stderr, "FATAL: dlsym ('XCreateWindow') somehow points at us.\n");
-	   exit (1);
-   } else if (! func) {
-	   fprintf (stderr, "FATAL: dlsym ('XCreateWindow') somehow points at NULL.\n");
-	   exit (1);
-   }
+   get_sym (func, lib_xlib, "libX11.so", XCreateWindow);
 
    /* multihead screen handling loop */
    for (i = 0; i < ScreenCount(display); i++)
@@ -138,16 +147,7 @@ XCreateSimpleWindow(
    int i;
 
    /* find the real Xlib and the real X function */
-   if (!lib_xlib) lib_xlib = dlopen("libX11.so", RTLD_GLOBAL | RTLD_LAZY);
-   if (!func) func = dlsym (RTLD_NEXT, "XCreateSimpleWindow");
-   if (!func) func = dlsym (lib_xlib, "XCreateSimpleWindow");
-   if (func == XCreateSimpleWindow) {
-	   fprintf (stderr, "FATAL: dlsym ('XCreateSimpleWindow') somehow points at us.\n");
-	   exit (1);
-   } else if (! func) {
-	   fprintf (stderr, "FATAL: dlsym ('XCreateSimpleWindow') somehow points at NULL.\n");
-	   exit (1);
-   }
+   get_sym (func, lib_xlib, "libX11.so", XCreateSimpleWindow);
 
    /* multihead screen handling loop */
    for (i = 0; i < ScreenCount(display); i++)
@@ -190,16 +190,7 @@ XReparentWindow(
    int i;
 
    /* find the real Xlib and the real X function */
-   if (!lib_xlib) lib_xlib = dlopen("libX11.so", RTLD_GLOBAL | RTLD_LAZY);
-   if (!func) func = dlsym (RTLD_NEXT, "XReparentWindow");
-   if (!func) func = dlsym (lib_xlib, "XReparentWindow");
-   if (func == XReparentWindow) {
-	   fprintf (stderr, "FATAL: dlsym ('XReparentWindow') somehow points at us.\n");
-	   exit (1);
-   } else if (! func) {
-	   fprintf (stderr, "FATAL: dlsym ('XReparentWindow') somehow points at NULL.\n");
-	   exit (1);
-   }
+   get_sym (func, lib_xlib, "libX11.so", XReparentWindow);
 
    /* multihead screen handling loop */
    for (i = 0; i < ScreenCount(display); i++)
