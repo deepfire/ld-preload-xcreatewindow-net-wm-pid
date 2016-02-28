@@ -39,7 +39,7 @@ __e_hack_set_properties(Display *display, Window window)
      {
 	pid_t pid;
 	char buf[4096];
-	
+
 	pid = getpid();
 
 	snprintf(buf, sizeof(buf), "%i", pid);
@@ -97,10 +97,10 @@ XCreateWindow(
 	if (parent == RootWindow(display, i))
 	  {
 	     Window window;
-	     
+
 	     /* create it */
-	     window = (*func) (display, parent, x, y, width, height, 
-				border_width, depth, class, visual, valuemask, 
+	     window = (*func) (display, parent, x, y, width, height,
+				border_width, depth, class, visual, valuemask,
 				attributes);
 	     /* set properties */
 	     __e_hack_set_properties(display, window);
@@ -136,7 +136,7 @@ XCreateSimpleWindow(
        unsigned long background
        ) = NULL;
    int i;
-   
+
    /* find the real Xlib and the real X function */
    if (!lib_xlib) lib_xlib = dlopen("libX11.so", RTLD_GLOBAL | RTLD_LAZY);
    if (!func) func = dlsym (RTLD_NEXT, "XCreateSimpleWindow");
@@ -148,7 +148,7 @@ XCreateSimpleWindow(
 	   fprintf (stderr, "FATAL: dlsym ('XCreateSimpleWindow') somehow points at NULL.\n");
 	   exit (1);
    }
-   
+
    /* multihead screen handling loop */
    for (i = 0; i < ScreenCount(display); i++)
      {
@@ -156,9 +156,9 @@ XCreateSimpleWindow(
 	if (parent == RootWindow(display, i))
 	  {
 	     Window window;
-	     
+
 	     /* create it */
-	     window = (*func) (display, parent, x, y, width, height, 
+	     window = (*func) (display, parent, x, y, width, height,
 				border_width, border, background);
 	     /* set properties */
 	     __e_hack_set_properties(display, window);
@@ -167,7 +167,7 @@ XCreateSimpleWindow(
 	  }
      }
    /* normal child window - create as usual */
-   return (*func) (display, parent, x, y, width, height, 
+   return (*func) (display, parent, x, y, width, height,
 		   border_width, border, background);
 }
 
@@ -188,7 +188,7 @@ XReparentWindow(
        int x, int y
        ) = NULL;
    int i;
-   
+
    /* find the real Xlib and the real X function */
    if (!lib_xlib) lib_xlib = dlopen("libX11.so", RTLD_GLOBAL | RTLD_LAZY);
    if (!func) func = dlsym (RTLD_NEXT, "XReparentWindow");
