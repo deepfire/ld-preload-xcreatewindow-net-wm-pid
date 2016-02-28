@@ -32,53 +32,19 @@ static void *lib_xlib = NULL;
 static void
 __e_hack_set_properties(Display *display, Window window)
 {
-   static Atom a_launch_id = 0;
-   static Atom a_launch_path = 0;
-   static Atom a_user_id = 0;
-   static Atom a_process_id = 0;
-   static Atom a_p_process_id = 0;
-   static Atom a_machine_name = 0;
-   static Atom a_user_name = 0;
-   char *env = NULL;
+   static Atom net_wm_pid = 0;
 
-   if (!a_launch_id)    a_launch_id    = XInternAtom(display, "_E_HACK_LAUNCH_ID", False);
-   if (!a_launch_path)  a_launch_path  = XInternAtom(display, "_E_HACK_LAUNCH_PATH", False);
-   if (!a_user_id)      a_user_id      = XInternAtom(display, "_E_HACK_USER_ID", False);
-   if (!a_process_id)   a_process_id   = XInternAtom(display, "_E_HACK_PROCESS_ID", False);
-   if (!a_p_process_id) a_p_process_id = XInternAtom(display, "_E_HACK_PARENT_PROCESS_ID", False);
-   if (!a_machine_name) a_machine_name = XInternAtom(display, "_E_HACK_MACHINE_NAME", False);
-   if (!a_user_name)    a_user_name    = XInternAtom(display, "_E_HACK_USER_NAME", False);
+   if (!net_wm_pid)    net_wm_pid    = XInternAtom(display, "_NET_WM_PID", False);
 
-   if ((env = getenv("E_HACK_LAUNCH_ID")))
-      XChangeProperty(display, window, a_launch_id, XA_STRING, 8, PropModeReplace, env, strlen(env));
-   if ((env = getenv("E_HACK_LAUNCH_PATH")))
-      XChangeProperty(display, window, a_launch_path, XA_STRING, 8, PropModeReplace, env, strlen(env));
      {
-	uid_t uid;
-	pid_t pid, ppid;
-	struct utsname ubuf;
+	pid_t pid;
 	char buf[4096];
 	
-	uid = getuid();
 	pid = getpid();
-	ppid = getppid();
 
-	snprintf(buf, sizeof(buf), "%i", uid);
-	XChangeProperty(display, window, a_user_id, XA_STRING, 8, PropModeReplace, buf, strlen(buf));
 	snprintf(buf, sizeof(buf), "%i", pid);
-	XChangeProperty(display, window, a_process_id, XA_STRING, 8, PropModeReplace, buf, strlen(buf));
-	snprintf(buf, sizeof(buf), "%i", ppid);
-	XChangeProperty(display, window, a_p_process_id, XA_STRING, 8, PropModeReplace, buf, strlen(buf));
-	if (!uname(&ubuf))
-	  {
-	     snprintf(buf, sizeof(buf), "%s", ubuf.nodename);
-	     XChangeProperty(display, window, a_machine_name, XA_STRING, 8, PropModeReplace, buf, strlen(buf));
-	  }
-	else
-	   XChangeProperty(display, window, a_machine_name, XA_STRING, 8, PropModeReplace, " ", 1);
+	XChangeProperty(display, window, net_wm_pid, XA_CARDINAL, 32, PropModeReplace, (void *) &pid, 1);
      }
-   if ((env = getenv("USER")))
-      XChangeProperty(display, window, a_user_name, XA_STRING, 8, PropModeReplace, env, strlen(env));
 }
 
 /* XCreateWindow intercept hack */
